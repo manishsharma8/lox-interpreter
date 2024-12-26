@@ -60,7 +60,7 @@ public class Scanner {
                 break;
             case '/':
                 if (match('/')) {
-                    while(peek() != '\n' && !isAtEnd()) advance();
+                    while (peek() != '\n' && !isAtEnd()) advance();
                 } else {
                     addToken(TokenType.SLASH);
                 }
@@ -84,15 +84,15 @@ public class Scanner {
     }
 
     private boolean match(char expected) {
-        if(isAtEnd()) return false;
-        if(source.charAt(current) != expected) return false;
+        if (isAtEnd()) return false;
+        if (source.charAt(current) != expected) return false;
 
         current++;
         return true;
     }
 
     private char peek() {
-        if(isAtEnd()) return '\0';
+        if (isAtEnd()) return '\0';
         return source.charAt(current);
     }
 
@@ -109,7 +109,7 @@ public class Scanner {
         tokens.add(new Token(type, text, literal, line));
     }
 
-    private boolean isAtEnd(){
+    private boolean isAtEnd() {
         return current >= source.length();
     }
 }
