@@ -88,9 +88,26 @@ public class Scanner {
                 line++;
                 break;
             default:
+                if (Character.isDigit(c)) {
+                    number();
+                }else{
                 Lox.error(line, "Unexpected character.");
+                }
                 break;
         }
+    }
+
+    private void number() {
+        while(Character.isDigit(peek())) advance();
+
+        // Look for a fractional part
+        if(peek() == '.' && Character.isDigit(peekNext())) {
+            // Consume the '.' and iterate over the rest of numbers
+            do advance();
+            while (Character.isDigit(peek()));
+        }
+
+        addToken(TokenType.NUMBER, Double.parseDouble(source.substring(start, current)));
     }
 
     private void string() {
@@ -125,6 +142,11 @@ public class Scanner {
     private char peek() {
         if (isAtEnd()) return '\0';
         return source.charAt(current);
+    }
+
+    private char peekNext() {
+        if(current + 1 >= source.length()) return '\0';
+        return source.charAt(current + 1);
     }
 
     private char advance() {
