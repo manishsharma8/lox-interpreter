@@ -1,9 +1,33 @@
 package com.interpreter.lox;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Scanner {
+    private static final Map<String, TokenType> keywords;
+
+    static {
+        keywords = new HashMap<>();
+        keywords.put("and", TokenType.AND);
+        keywords.put("class", TokenType.CLASS);
+        keywords.put("else", TokenType.ELSE);
+        keywords.put("false", TokenType.FALSE);
+        keywords.put("fun", TokenType.FUN);
+        keywords.put("for", TokenType.FOR);
+        keywords.put("if", TokenType.IF);
+        keywords.put("nil", TokenType.NIL);
+        keywords.put("or", TokenType.OR);
+        keywords.put("print", TokenType.PRINT);
+        keywords.put("return", TokenType.RETURN);
+        keywords.put("super", TokenType.SUPER);
+        keywords.put("this", TokenType.THIS);
+        keywords.put("true", TokenType.TRUE);
+        keywords.put("var", TokenType.VAR);
+        keywords.put("while", TokenType.WHILE);
+    }
+
     private final String source;
     private final List<Token> tokens = new ArrayList<>();
     private int start = 0;
@@ -90,24 +114,35 @@ public class Scanner {
             default:
                 if (Character.isDigit(c)) {
                     number();
-                }else{
-                Lox.error(line, "Unexpected character.");
+                } else if (isAlpha(c)) {
+                    identifier();
+                } else {
+                    Lox.error(line, "Unexpected character.");
                 }
                 break;
         }
     }
 
     private void number() {
-        while(Character.isDigit(peek())) advance();
+        while (Character.isDigit(peek())) advance();
 
         // Look for a fractional part
-        if(peek() == '.' && Character.isDigit(peekNext())) {
+        if (peek() == '.' && Character.isDigit(peekNext())) {
             // Consume the '.' and iterate over the rest of numbers
             do advance();
             while (Character.isDigit(peek()));
         }
 
         addToken(TokenType.NUMBER, Double.parseDouble(source.substring(start, current)));
+    }
+
+    private void identifier() {
+        while (isAlphaNumeric(peek())) advance();
+
+        String text = source.substring(start, current);
+        TokenType type = keywords.get(text);
+        if (type == null) type = TokenType.IDENTIFIER;
+        addToken(type);
     }
 
     private void string() {
@@ -145,8 +180,16 @@ public class Scanner {
     }
 
     private char peekNext() {
-        if(current + 1 >= source.length()) return '\0';
+        if (current + 1 >= source.length()) return '\0';
         return source.charAt(current + 1);
+    }
+
+    private boolean isAlpha(char c) {
+        return (c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c == '_');
+    }
+
+    private boolean isAlphaNumeric(char c) {
+        return (Character.isDigit(c) || isAlpha(c));
     }
 
     private char advance() {
